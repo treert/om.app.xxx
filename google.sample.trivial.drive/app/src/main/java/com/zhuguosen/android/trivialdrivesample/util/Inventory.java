@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.example.android.trivialdrivesample.util;
+package com.zhuguosen.android.trivialdrivesample.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;

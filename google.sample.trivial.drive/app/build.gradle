@@ -11,10 +11,10 @@ android {
         }*/
     }
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
-        applicationId "com.example.android.trivialdrivesample"
+        applicationId "com.zhuguosen.android.trivialdrivesample"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 7

@@ -15,7 +15,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.android.trivialdrivesample">
+          package="com.zhuguosen.android.trivialdrivesample">
 
     <!-- VERY IMPORTANT! Don't forget this permission, or in-app billing won't work. -->
     <uses-permission android:name="com.android.vending.BILLING" />
@@ -25,7 +25,7 @@
                  android:icon="@drawable/ic_launcher"
                  android:theme="@style/AppTheme">
         <activity
-                android:name="com.example.android.trivialdrivesample.MainActivity"
+                android:name="com.zhuguosen.android.trivialdrivesample.MainActivity"
                 android:label="@string/title_activity_main"
                 android:screenOrientation="portrait">
             <intent-filter>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.trivialdrivesample;
+package com.zhuguosen.android.trivialdrivesample;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,13 +30,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.example.android.trivialdrivesample.util.IabBroadcastReceiver;
-import com.example.android.trivialdrivesample.util.IabBroadcastReceiver.IabBroadcastListener;
-import com.example.android.trivialdrivesample.util.IabHelper;
-import com.example.android.trivialdrivesample.util.IabHelper.IabAsyncInProgressException;
-import com.example.android.trivialdrivesample.util.IabResult;
-import com.example.android.trivialdrivesample.util.Inventory;
-import com.example.android.trivialdrivesample.util.Purchase;
+import com.zhuguosen.android.trivialdrivesample.util.IabBroadcastReceiver;
+import com.zhuguosen.android.trivialdrivesample.util.IabBroadcastReceiver.IabBroadcastListener;
+import com.zhuguosen.android.trivialdrivesample.util.IabHelper;
+import com.zhuguosen.android.trivialdrivesample.util.IabHelper.IabAsyncInProgressException;
+import com.zhuguosen.android.trivialdrivesample.util.IabResult;
+import com.zhuguosen.android.trivialdrivesample.util.Inventory;
+import com.zhuguosen.android.trivialdrivesample.util.Purchase;
 
 import java.util.ArrayList;
 import java.util.List;
