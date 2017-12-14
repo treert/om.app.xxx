@@ -19,5 +19,6 @@ public class MainScene : MonoBehaviour {
     public void OnClickTest()
     {
         XPlatform.singleton.SetStatusMsg("click test");
+        XPlatform.singleton.SendMsgToNative("test","");
     }
 }

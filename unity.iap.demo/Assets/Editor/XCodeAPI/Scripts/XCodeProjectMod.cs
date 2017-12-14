@@ -1,6 +1,6 @@
-﻿#if !UNITY_STANDALONE_OSX
-#define UNITY_STANDALONE_OSX
-#endif
+﻿//#if !UNITY_STANDALONE_OSX
+//#define UNITY_STANDALONE_OSX
+//#endif
 using UnityEngine;
 
 #if UNITY_STANDALONE_OSX

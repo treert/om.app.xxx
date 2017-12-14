@@ -16,17 +16,17 @@ class XPlatform : MonoBehaviour
         _textStatus.text = msg;
     }
 
-    public void SendMsg(string type, string json)
+    public void SendMsgToNative(string type, string json = "")
     {
         XNativeInterface.SendMsg(type, json);
     }
 
-    public void OnRecvMsg(string type, string content)
+    public void RecvNativeMsg(string json)
     {
-        SetStatusMsg(content);
+        SetStatusMsg(json);
     }
 
-    public string GetInfo(string type, string json)
+    public string GetInfoFromNative(string type, string json = "")
     {
         return XNativeInterface.GetInfo(type, json);
     }

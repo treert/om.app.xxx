@@ -14,13 +14,13 @@ class XNativeInterface
 #endif
 #if UNITY_IPHONE
     [DllImport("__Internal")]
-	private static extern void U3D_SendMsg(string type, string content);
+	private static extern void U3D_RecvMsgFromUnity(string type, string content);
 
     [DllImport("__Internal")]
-	private static extern IntPtr U3D_GetInfo(string type, string content);
+	private static extern IntPtr U3D_GetInfoForUnity(string type, string content);
 #endif
 
-    private static void AndroidInvoke(string _itf_obj_name, string method, params object[] args)
+    private static void AndroidInvoke(string method, params object[] args)
     {
         if (Application.platform == RuntimePlatform.Android)
         {
@@ -48,9 +48,9 @@ class XNativeInterface
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
 #if UNITY_ANDROID
-            AndroidInvoke("SendMsg", type, json);
+            AndroidInvoke("RecvMsgFromUnity", type, json);
 #elif UNITY_IPHONE
-			U3D_SendMsg(type, json);
+			U3D_RecvMsgFromUnity(type, json);
 #endif
         }
     }
@@ -61,9 +61,9 @@ class XNativeInterface
         if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
         {
 #if UNITY_ANDROID
-            defaultValue = AndroidInvoke<string>("GetInfo", type, json);
+            defaultValue = AndroidInvoke<string>("GetInfoForUnity", type, json);
 #elif UNITY_IPHONE
-			defaultValue = Marshal.PtrToStringAnsi(U3D_GetInfo(type, json));
+			defaultValue = Marshal.PtrToStringAnsi(U3D_GetInfoForUnity(type, json));
 #endif
         }
         return defaultValue;

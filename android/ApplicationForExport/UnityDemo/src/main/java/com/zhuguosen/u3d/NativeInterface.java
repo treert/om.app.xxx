@@ -3,8 +3,26 @@ import com.unity3d.player.UnityPlayer;
 import org.json.*;
 
 public class NativeInterface {
-    public static void RecvMsgFromUnity(String type, String json){
+    public interface Delegate{
+        void RecvMsgFromUnity(String type, String json);
+        String GetInfoForUnity(String type, String json);
+    }
 
+    public static Delegate mDelegate = new Delegate() {
+        @Override
+        public void RecvMsgFromUnity(String type, String json) {
+
+        }
+
+        @Override
+        public String GetInfoForUnity(String type, String json) {
+            return "";
+        }
+    };
+
+    public static void RecvMsgFromUnity(String type, String json){
+        mDelegate.RecvMsgFromUnity(type, json);
+        SendMsgToUnity(type, json);
     }
 
     public static void SendMsgToUnity(String type, Object json){
@@ -22,7 +40,7 @@ public class NativeInterface {
         UnityPlayer.UnitySendMessage("GamePoint","RecvNativeMsg",msg);
     }
 
-    public static String GetInfo(String type, String json){
-        return "GetInfo";
+    public static String GetInfoForUnity(String type, String json){
+        return mDelegate.GetInfoForUnity(type, json);
     }
 }
