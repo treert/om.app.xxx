@@ -47,6 +47,10 @@ public class MainScene : MonoBehaviour {
 
     public void OnClickXIAPConsume()
     {
+        Dictionary<string, object> jsonData = new Dictionary<string, object>();
+        jsonData["productId"] = "gas";
 
+        var str = Json.Serialize(jsonData);
+        XPlatform.singleton.SendMsgToNative("xiap.consume", str);
     }
 }

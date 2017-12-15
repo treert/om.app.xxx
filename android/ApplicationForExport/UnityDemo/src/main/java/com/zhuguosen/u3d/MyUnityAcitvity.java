@@ -1,5 +1,6 @@
 package com.zhuguosen.u3d;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -36,6 +37,19 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
         // super.onBackPressed();
     }
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        XIAPHelper.getInstance().handleActivityResult(requestCode, resultCode, data);
+    }
+
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        XIAPHelper.getInstance().onDestroy();
+    }
+
     @Override
     public void RecvMsgFromUnity(String type, String json) {
         Log.v("OM",String.format("type: %s, json: %s", type, json));
@@ -60,15 +74,22 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
                 String productId = data.getString("productId");
                 String payload = data.getString("payload");
 
-                Log.i("JoyYouSDK", "XIAP_BUY buy productId:"+productId+" extData:"+payload);
+                Log.i("OM", "xiap.buy buy productId:"+productId+" extData:"+payload);
                 XIAPHelper.getInstance().buy(productId, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        else if(type.equals("xiap.consume"))
-        {
+        else if(type.equals("xiap.consume")){
+            try {
+                JSONObject data = new JSONObject(json);
+                String productId = data.getString("productId");
 
+                Log.i("OM", "xiap.consume buy productId:"+productId);
+                XIAPHelper.getInstance().consume(productId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         else
         {
@@ -113,7 +134,7 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
 
         @Override
         public void onXIAPBuyError(int code, String msg) {
-            Log.e("XIAP", "onXIAPIinitError errCode:"+code + " errMsg:"+msg);
+            Log.e("XIAP", "onXIAPBuyError errCode:"+code + " errMsg:"+msg);
             try {
                 JSONObject obj = new JSONObject();
                 obj.put("err_code", code);

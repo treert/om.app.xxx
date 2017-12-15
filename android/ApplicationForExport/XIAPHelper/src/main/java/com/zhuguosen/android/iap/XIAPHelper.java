@@ -78,7 +78,8 @@ public class XIAPHelper {
         Log.d(TAG, "Showing alert dialog: " + message);
         bld.create().show();
     }
-    
+
+    private List<String> mProductIdList;
     // 商品信息
     private Inventory mInventory;
     
@@ -111,6 +112,7 @@ public class XIAPHelper {
     
     public void init(Activity activity, final List<String> productIdList){
     	mActivity = activity;
+        mProductIdList = productIdList;
     	
     	if(mBase64EncodedPublicKey.length() < 1)
     	{
@@ -157,7 +159,7 @@ public class XIAPHelper {
                 // IAB is fully set up. Now, let's get an inventory of stuff we own.
                 logDebug("Setup successful. Querying inventory.");
                 try {
-                    mHelper.queryInventoryAsync(true,productIdList,null,mGotInventoryListener);
+                    mHelper.queryInventoryAsync(true,mProductIdList,null,mGotInventoryListener);
                 } catch (IabAsyncInProgressException e) {
                 	logError("Error querying inventory. Another async operation in progress.");
                 	mDelegate.onXIAPIinitError(-1, "Error querying inventory. Another async operation in progress.");
@@ -190,21 +192,34 @@ public class XIAPHelper {
             mDelegate.onXIAPBuyError(-1, "Error launching purchase flow. Another async operation in progress.");
         }
     }
+
+    /**
+     * consume owned product, so can buy again
+     * @param productId
+     */
+    public void consume(String productId){
+        // 这个接口，不需要返回，服务
+        if(mInventory == null) return;
+        Purchase purchase = mInventory.getPurchase(productId);
+        if(purchase != null){
+            try {
+                mInventory.erasePurchase(purchase.getSku());
+                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+            } catch (IabAsyncInProgressException e) {
+                logError("Error consuming . Another async operation in progress. product: " + purchase.getSku());
+                return;
+            }
+        }
+    }
     
     private void ConsumeOneUnexceptProduct(){
-    	if(mHelper == null) return;
+    	if(mInventory == null) return;
+        // 这些商品商品直接通知游戏去消耗
     	List<Purchase> needConsumeProducts = mInventory.getAllPurchases();
     	if(needConsumeProducts.size() > 0)
     	{
     		Purchase purchase= needConsumeProducts.get(0);
-    		mInventory.erasePurchase(purchase.getSku());
-            // 直接去消�?
-            try {
-                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-            } catch (IabAsyncInProgressException e) {
-            	logError("Error consuming . Another async operation in progress. product: " + purchase.getSku());
-                return;
-            }
+            mDelegate.onXIAPBuySuccess(purchase);
     	}
     }
     
@@ -221,7 +236,8 @@ public class XIAPHelper {
                 mDelegate.onXIAPIinitError(-1, "Failed to query inventory: " + result);
                 return;
             }
-            
+
+            // if mInventory aready exsit, merge it seems better, but i do not do it
             mInventory = inv;
             
             // 通知客户端，商品列表和为消费的商品列表�??
@@ -248,23 +264,29 @@ public class XIAPHelper {
 			logDebug("Purchase finished: " + result + ", purchase: " + purchase);
 			
             // if we were disposed of in the meantime, quit.
-            if (mHelper == null) return;
+            if (mInventory == null) return;
             
             if (result.isFailure()){
             	logError("Error purchasing: " + result);
-            	mDelegate.onXIAPBuyError(-1, "Error purchasing: " + result);
+                if(result.getResponse() == IabHelper.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED){
+                    // error code 7, means aready owned, need notice server then consume it
+                    // refresh info, callback will handle it
+                    try {
+                        mHelper.queryInventoryAsync(true,mProductIdList,null,mGotInventoryListener);
+                    } catch (IabAsyncInProgressException e) {
+                        logError("Error querying inventory. Another async operation in progress.");
+                    }
+                    mDelegate.onXIAPBuyError(7, "Error purchasing: " + result);
+                }
+                else{
+                    mDelegate.onXIAPBuyError(-1, "Error purchasing: " + result);
+                }
             	return;
             }
-           
-            // 直接去消�?
-            try {
-                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-            } catch (IabAsyncInProgressException e) {
-            	logError("Error consuming . Another async operation in progress. product: " + purchase.getSku());
-            	mDelegate.onXIAPBuyError(-1, "Error consuming . Another async operation in progress. product: " + purchase.getSku());
-                return;
-            }
-            
+            mInventory.addPurchase(purchase);
+            alert("Purchase: " + purchase);
+            mDelegate.onXIAPBuySuccess(purchase);
+
             logDebug("Purchase successful.");
 		}
     	
@@ -276,17 +298,14 @@ public class XIAPHelper {
 		@Override
 		public void onConsumeFinished(Purchase purchase, IabResult result) {
 			logDebug("Consumption finished. Purchase: " + purchase + ", result: " + result);
-			
-			
+
 			if (result.isSuccess()) {
 				// 通知服务器发货，这一步很关键，最好是能�?�知到服务器，不然会非常的尴�?
 				logDebug("Consumption successful. Provisioning.");
-				alert("Purchase: " + purchase);
-				mDelegate.onXIAPBuySuccess(purchase);
+				alert("Consume: " + purchase);
             }
             else {
             	logError("Error while consuming: " + result);
-            	mDelegate.onXIAPBuyError(-1,"Error while consuming: " + result);
             }
 			
 			// no harm
