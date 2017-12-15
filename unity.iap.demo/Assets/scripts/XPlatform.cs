@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -18,6 +17,7 @@ class XPlatform : MonoBehaviour
 
     public void SendMsgToNative(string type, string json = "")
     {
+        SetStatusMsg(type + '\n' + json); 
         XNativeInterface.SendMsg(type, json);
     }
 

@@ -23,15 +23,13 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile project(':unity-classes')
+    compile project(path: ':XIAPHelper')
 }
 
 task makeJar(type: Copy) {
-    def dst_dir = '../../../unity.iap.demo/Assets/Plugins/Andorid'
+    def dst_dir = '../../../unity.iap.demo/Assets/Plugins/Android'
     def dst_file = 'my.unity.activity.jar'
     def dst_path = dst_dir + '/' + dst_file
 

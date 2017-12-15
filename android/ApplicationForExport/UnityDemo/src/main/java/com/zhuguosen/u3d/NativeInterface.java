@@ -22,7 +22,6 @@ public class NativeInterface {
 
     public static void RecvMsgFromUnity(String type, String json){
         mDelegate.RecvMsgFromUnity(type, json);
-        SendMsgToUnity(type, json);
     }
 
     public static void SendMsgToUnity(String type, Object json){

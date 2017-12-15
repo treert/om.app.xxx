@@ -18,10 +18,14 @@ android {
 }
 
 task makeJar(type: Copy) {
-    delete 'build/libs/om.xiap.helper.jar'
+    def dst_dir = '../../../unity.iap.demo/Assets/Plugins/Android'
+    def dst_file = 'om.xiap.xiaphelper.jar'
+    def dst_path = dst_dir + '/' + dst_file
+
+    delete dst_path
     from('build/intermediates/bundles/debug/')
-    into('build/libs/')
+    into(dst_dir)
     include('classes.jar')
-    rename ('classes.jar', 'om.xiap.helper.jar')
+    rename ('classes.jar', dst_file)
 }
 makeJar.dependsOn(build)
