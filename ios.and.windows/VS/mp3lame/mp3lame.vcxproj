@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{579EF586-A468-413E-B859-0859AFA70038}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>mp3lame</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformToolset>v120</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\treertzhu\Desktop\git\Lame\mp3lame\mp3lame\libmp3lame;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\treertzhu\Desktop\git\Lame\mp3lame\mp3lame\libmp3lame;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MP3LAME_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MP3LAME_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="libmp3lame\bitstream.c" />
+    <ClCompile Include="libmp3lame\encoder.c" />
+    <ClCompile Include="libmp3lame\fft.c" />
+    <ClCompile Include="libmp3lame\gain_analysis.c" />
+    <ClCompile Include="libmp3lame\id3tag.c" />
+    <ClCompile Include="libmp3lame\lame.c" />
+    <ClCompile Include="libmp3lame\mpglib_interface.c" />
+    <ClCompile Include="libmp3lame\newmdct.c" />
+    <ClCompile Include="libmp3lame\presets.c" />
+    <ClCompile Include="libmp3lame\psymodel.c" />
+    <ClCompile Include="libmp3lame\quantize.c" />
+    <ClCompile Include="libmp3lame\quantize_pvt.c" />
+    <ClCompile Include="libmp3lame\reservoir.c" />
+    <ClCompile Include="libmp3lame\set_get.c" />
+    <ClCompile Include="libmp3lame\tables.c" />
+    <ClCompile Include="libmp3lame\takehiro.c" />
+    <ClCompile Include="libmp3lame\util.c" />
+    <ClCompile Include="libmp3lame\vbrquantize.c" />
+    <ClCompile Include="libmp3lame\VbrTag.c" />
+    <ClCompile Include="libmp3lame\vector\xmm_quantize_sub.c" />
+    <ClCompile Include="libmp3lame\version.c" />
+    <ClCompile Include="libmp3lame\wrapper.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libmp3lame\bitstream.h" />
+    <ClInclude Include="libmp3lame\encoder.h" />
+    <ClInclude Include="libmp3lame\fft.h" />
+    <ClInclude Include="libmp3lame\gain_analysis.h" />
+    <ClInclude Include="libmp3lame\id3tag.h" />
+    <ClInclude Include="libmp3lame\l3side.h" />
+    <ClInclude Include="libmp3lame\lame-analysis.h" />
+    <ClInclude Include="libmp3lame\lame.h" />
+    <ClInclude Include="libmp3lame\lameerror.h" />
+    <ClInclude Include="libmp3lame\lame_global_flags.h" />
+    <ClInclude Include="libmp3lame\machine.h" />
+    <ClInclude Include="libmp3lame\newmdct.h" />
+    <ClInclude Include="libmp3lame\psymodel.h" />
+    <ClInclude Include="libmp3lame\quantize.h" />
+    <ClInclude Include="libmp3lame\quantize_pvt.h" />
+    <ClInclude Include="libmp3lame\reservoir.h" />
+    <ClInclude Include="libmp3lame\set_get.h" />
+    <ClInclude Include="libmp3lame\tables.h" />
+    <ClInclude Include="libmp3lame\util.h" />
+    <ClInclude Include="libmp3lame\vbrquantize.h" />
+    <ClInclude Include="libmp3lame\VbrTag.h" />
+    <ClInclude Include="libmp3lame\vector\lame_intrin.h" />
+    <ClInclude Include="libmp3lame\version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

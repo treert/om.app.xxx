@@ -1,0 +1,7 @@
+LIBRARY mp3lame
+EXPORTS
+	Lame_InitRecorder
+	Lame_ReadyToRecord
+	Lame_AppendSameples
+	Lame_EndRecord
+	Lame_DestroyEncoder
