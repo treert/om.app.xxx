@@ -33,7 +33,7 @@ task makeJar(type: Copy) {
     def dst_file = 'my.unity.activity.jar'
     def dst_path = dst_dir + '/' + dst_file
 
-    delete dst_path
+    //delete dst_path
     from('build/intermediates/bundles/debug/')
     into(dst_dir)
     include('classes.jar')
