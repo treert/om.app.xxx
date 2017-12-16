@@ -1,2 +1,2 @@
-include ':app', ':unity-classes', ':UnityDemo', ':libcommonjar'
+include ':app', ':unity-classes', ':UnityDemo', ':libcommonjar', ':lamemp3'
 include ':XIAPHelper'

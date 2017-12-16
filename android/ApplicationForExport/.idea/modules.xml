@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/UnityDemo/UnityDemo.iml" filepath="$PROJECT_DIR$/UnityDemo/UnityDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/XIAPHelper/XIAPHelper.iml" filepath="$PROJECT_DIR$/XIAPHelper/XIAPHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lamemp3/lamemp3.iml" filepath="$PROJECT_DIR$/lamemp3/lamemp3.iml" />
       <module fileurl="file://$PROJECT_DIR$/libcommonjar/libcommonjar.iml" filepath="$PROJECT_DIR$/libcommonjar/libcommonjar.iml" />
       <module fileurl="file://$PROJECT_DIR$/unity-classes/unity-classes.iml" filepath="$PROJECT_DIR$/unity-classes/unity-classes.iml" />
     </modules>
