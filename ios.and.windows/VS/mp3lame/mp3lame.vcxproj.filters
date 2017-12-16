@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="res">
+      <UniqueIdentifier>{389c8a02-47a1-40c3-b74d-a06615b607e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="libmp3lame\bitstream.c">
@@ -155,7 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Source.def">
-      <Filter>源文件</Filter>
+      <Filter>res</Filter>
     </None>
   </ItemGroup>
 </Project>

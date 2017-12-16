@@ -56,13 +56,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\treertzhu\Desktop\git\Lame\mp3lame\mp3lame\libmp3lame;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\libmp3lame;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\treertzhu\Desktop\git\Lame\mp3lame\mp3lame\libmp3lame;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\libmp3lame;$(IncludePath)</IncludePath>
+    <IntDir>$(Platform)\$(Configuration)\tmp</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
