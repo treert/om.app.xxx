@@ -1,0 +1,5 @@
+_Lame_AppendSameples
+_Lame_DestroyEncoder
+_Lame_EndRecord
+_Lame_InitRecorder
+_Lame_ReadyToRecord
