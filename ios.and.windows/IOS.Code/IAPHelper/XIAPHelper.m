@@ -13,7 +13,12 @@
  * 1. initInfo
  * 2. buy
  */
-@interface XIAPHelper()
+@interface XIAPHelper()<SKPaymentTransactionObserver,SKProductsRequestDelegate>
+{
+    NSString* _goodId;
+    SKProduct* _productInfo;
+    NSString* _payload;
+}
 @property BOOL mInitSuccess;
 @property BOOL mIsBuying;
 @property BOOL mShowAlert;
@@ -28,7 +33,7 @@ static XIAPHelper * _singleton;
 
 + (XIAPHelper* ) getInstance {
     if (_singleton == nil) {
-        _singleton = [XIAPHelper alloc];
+        _singleton = [[XIAPHelper alloc] init];
         _singleton.mInitSuccess = NO;
         _singleton.mIsBuying = NO;
         _singleton.mCurrentProductId = @"";
@@ -36,6 +41,21 @@ static XIAPHelper * _singleton;
     }
     return _singleton;
 }
+
+-(id) init
+{
+    if (self = [super init]) {
+        [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    }
+    return self;
+}
+
+//-(void) dealloc
+//{
+//    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+//    [super dealloc];
+//}
+
 
 - (void) initInfo:(NSSet*)productIdList{
 //    if(self.mInitSuccess)
@@ -121,6 +141,15 @@ static XIAPHelper * _singleton;
 }
 
 - (void) buy:(NSString*)productId payload:(NSString*) payload {
+    if(true){
+        _payload = payload;
+        [self buyGood: productId];
+        return;
+    }
+
+    
+    
+    
     if (![SKPaymentQueue canMakePayments]) {
         NSLog(@"XIAP: can not buy, IAP can not work");
         [self.mDelegate onXIAPBuyError:-1 msg:@"just do not support buy"];
@@ -217,4 +246,222 @@ static XIAPHelper * _singleton;
     self.mDelegate = delegate;
 }
 
+
+-(void)buyGood:(NSString*)goodId
+{
+    
+    NSLog(@" buyGood _goodId %@",goodId);
+    
+    if ([SKPaymentQueue canMakePayments]) {
+        
+        NSLog(@"允许程序内付费购买");
+        
+        _goodId = goodId;
+        
+        
+        NSArray *product=[[NSArray alloc] initWithObjects:goodId,nil];
+        NSSet *nsset = [NSSet setWithArray:product];
+        SKProductsRequest *request=[[SKProductsRequest alloc] initWithProductIdentifiers: nsset];
+        request.delegate=self;
+        [request start];
+        
+    }
+    else
+    {
+        NSLog(@"XIAP: can not buy, IAP can not work");
+        [self.mDelegate onXIAPBuyError:-1 msg:@"just do not support buy"];
+        return;
+    }
+    
+    
+}
+
+
+
+//<SKProductsRequestDelegate> 请求协议
+//收到的产品信息
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response{
+    
+    NSLog(@"-----------收到产品反馈信息--------------");
+    NSArray *myProduct = response.products;
+    NSLog(@"产品Product ID:%@",response.invalidProductIdentifiers);
+    NSLog(@"产品付费数量: %d", (int)[myProduct count]);
+    
+    if([myProduct count]==0)//不存在改商品
+    {
+        [self.mDelegate onXIAPBuyError:-1 msg:@"product id not exist"];
+        return;
+    }
+    // populate UI
+    for(SKProduct *product in myProduct){
+        NSLog(@"product info");
+        NSLog(@"SKProduct 描述信息%@", [product description]);
+        NSLog(@"产品标题 %@" , product.localizedTitle);
+        NSLog(@"产品描述信息: %@" , product.localizedDescription);
+        NSLog(@"价格: %@" , product.price);
+        NSLog(@"Product id: %@" , product.productIdentifier);
+    }
+    
+    NSLog(@"---------发送购买请求------------");
+    
+    _productInfo = myProduct[0];
+    
+    //  SKProduct *product = (SKProduct*) [response.products objectAtIndex:0];
+    
+    //_goodId
+    SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:_productInfo];
+    
+    // SKPayment *payment = [SKPayment paymentWithProductIdentifier:_goodId];//
+    [[SKPaymentQueue defaultQueue] addPayment:payment];
+    
+    
+}
+- (void)requestProUpgradeProductData
+{
+    NSLog(@"------请求升级数据---------");
+    NSSet *productIdentifiers = [NSSet setWithObject:@"com.productid"];
+    SKProductsRequest* productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
+    productsRequest.delegate = self;
+    [productsRequest start];
+    
+}
+//弹出错误信息
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error{
+    NSLog(@"didFailWithError error: %@ %ld", error.localizedDescription,(long)error.code);
+
+    
+    // [__object performSelector:__selector withObject:nil withObject:nil];
+    
+    [self.mDelegate onXIAPBuyError:-1 msg:@"pay failed"];
+}
+
+-(void) requestDidFinish:(SKRequest *)request
+{
+    NSLog(@"----------反馈信息结束--------------");
+    
+}
+
+-(void) PurchasedTransaction: (SKPaymentTransaction *)transaction{
+    NSLog(@"-----PurchasedTransaction----");
+    NSArray *transactions =[[NSArray alloc] initWithObjects:transaction, nil];
+    [self paymentQueue:[SKPaymentQueue defaultQueue] updatedTransactions:transactions];
+}
+
+//<SKPaymentTransactionObserver> 千万不要忘记绑定，代码如下：
+//----监听购买结果
+//[[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions//交易结果
+{
+    NSLog(@"-----paymentQueue--------");
+    for (SKPaymentTransaction *transaction in transactions)
+    {
+        switch (transaction.transactionState)
+        {
+            case SKPaymentTransactionStatePurchased:{//交易完成
+                [self completeTransaction:transaction];
+                NSLog(@"-----交易完成 --------");
+                
+                
+            } break;
+            case SKPaymentTransactionStateFailed://交易失败
+            { [self failedTransaction:transaction];
+                NSLog(@"-----交易失败 --------");
+                
+                [self.mDelegate onXIAPBuyError:-1 msg:@"buy failed"];
+                //[__object performSelector:__selector withObject:nil withObject:nil];
+                
+            }break;
+            case SKPaymentTransactionStateRestored://已经购买过该商品
+                [self restoreTransaction:transaction];
+                NSLog(@"-----已经购买过该商品 --------");
+            case SKPaymentTransactionStatePurchasing:      //商品添加进列表
+                NSLog(@"-----商品添加进列表 --------");
+                break;
+            default:
+                break;
+        }
+    }
+}
+- (void) completeTransaction: (SKPaymentTransaction *)transaction
+
+{
+    NSLog(@"-----completeTransaction--------");
+
+//    NSURL *receiptUrl = [[NSBundle mainBundle]appStoreReceiptURL];
+//    NSData *receipt = [NSData dataWithContentsOfURL:receiptUrl];
+//    NSString *base64Receipt = [receipt base64EncodedStringWithOptions:0];
+//
+//    // todo@om
+//    self.mIsBuying = NO;
+//
+//    NSString* x_productId = trans.payment.productIdentifier;
+//    NSString* x_payload = trans.payment.applicationUsername;
+//    SKProduct* x_product = [self getProductById:x_productId];
+//    //NSString* x_receipt = [[trans transactionReceipt] base64EncodedDataWithOptions:0];
+//
+//    NSLog(@"product: %@ payload: %@ ",productId,payload);
+//    NSLog(@"x_product: %@ x_payload: %@ ",x_productId,x_payload);
+//
+//    // too long
+//    // NSLog(@"XIAP: buy receipt %@",base64Receipt);
+//    [self showDebugView:@"info" msg:trans.description];
+//
+//    [self.mDelegate onXIAPBuySuccess:base64Receipt payload:x_payload product:x_product];
+    
+    //从沙盒中获取交易凭证并且拼接成请求体数据
+    NSURL *receiptUrl=[[NSBundle mainBundle] appStoreReceiptURL];
+    NSData *receiptData=[NSData dataWithContentsOfURL:receiptUrl];
+    NSString *base64Receipt = [receiptData base64EncodedStringWithOptions:0];
+    
+    //NSString *receiptString=[receiptData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];//转化为base64字符串
+    [self.mDelegate onXIAPBuySuccess:base64Receipt payload:_payload product:_productInfo];
+    
+    
+    //[__object performSelector:__selector withObject:receiptString withObject:transaction.transactionIdentifier];
+    
+    
+    // Remove the transaction from the payment queue.
+    
+    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+    
+}
+
+- (void) failedTransaction: (SKPaymentTransaction *)transaction{
+    NSLog(@"失败 %@",transaction.error);
+    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+    
+}
+-(void) paymentQueueRestoreCompletedTransactionsFinished: (SKPaymentTransaction *)transaction{
+    
+}
+
+- (void) restoreTransaction: (SKPaymentTransaction *)transaction
+{
+    NSLog(@" 交易恢复处理");
+    
+}
+
+-(void) paymentQueue:(SKPaymentQueue *) paymentQueue restoreCompletedTransactionsFailedWithError:(NSError *)error{
+    NSLog(@"-------paymentQueue----");
+}
+
+#pragma mark connection delegate
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    
+}
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection{
+    
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response{
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+    NSLog(@"test");
+}
+
+
 @end
+
