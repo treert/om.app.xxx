@@ -93,7 +93,7 @@ public class XIAPHelper {
     public void onDestroy(){
         // very important:
         logDebug("Destroying helper.");
-        if (mHelper != null) {
+        if (mHelper != null && mHelper.IsDisposed() == false) {
             mHelper.disposeWhenFinished();
             mHelper = null;
         }
@@ -123,6 +123,11 @@ public class XIAPHelper {
     	
         // Create the helper, passing it our context and the public key to verify signatures with
     	logDebug("Creating IAB helper.");
+
+    	if(mHelper != null && mHelper.IsDisposed() == false){
+    	    mHelper.disposeWhenFinished();
+        }
+
         mHelper = new IabHelper(mActivity, mBase64EncodedPublicKey);
     	
         // enable debug logging (for a production application, you should set this to false).
@@ -133,7 +138,13 @@ public class XIAPHelper {
         logDebug("Starting setup.");
         mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
-            	logDebug("Setup finished.");
+                // Have we been disposed of in the meantime? If so, quit.
+                if (mHelper == null) return;
+
+                // unfortunelu, this may happend
+                if(mHelper.IsDisposed()) return;
+
+                logDebug("Setup finished. ");
 
                 if (!result.isSuccess()) {
                     // Oh noes, there was a problem.
@@ -141,9 +152,6 @@ public class XIAPHelper {
                     mDelegate.onXIAPIinitError(-1, "iap helper setup failed: "+result);
                     return;
                 }
-
-                // Have we been disposed of in the meantime? If so, quit.
-                if (mHelper == null) return;
 
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
@@ -171,7 +179,7 @@ public class XIAPHelper {
     public void buy(String productId, String payload){
     	logDebug(String.format("buy product: %s", productId));
     	
-    	if(mInventory == null){
+    	if(mInventory == null || mHelper == null || mHelper.IsDisposed()){
     		logError("buy product error: has not init success");
     		mDelegate.onXIAPBuyError(-1, "buy product error: has not init success");
     		return;
@@ -199,7 +207,7 @@ public class XIAPHelper {
      */
     public void consume(String productId){
         // 这个接口，不需要返回，服务
-        if(mInventory == null) return;
+        if(mInventory == null || mHelper == null || mHelper.IsDisposed()) return;
         Purchase purchase = mInventory.getPurchase(productId);
         if(purchase != null){
             try {

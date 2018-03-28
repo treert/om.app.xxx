@@ -85,6 +85,10 @@ public class IabHelper {
     // Do we need to dispose this object after an in-progress asynchronous operation?
     boolean mDisposeAfterAsync = false;
 
+    public boolean IsDisposed(){
+        return mDisposed || mDisposeAfterAsync;
+    }
+
     // Are subscriptions supported?
     boolean mSubscriptionsSupported = false;
 

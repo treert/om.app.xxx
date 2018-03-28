@@ -62,7 +62,7 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
                 String[] productIdList = content.split(",");
                 XIAPHelper.getInstance().mBase64EncodedPublicKey = publicKey;
                 XIAPHelper.getInstance().setDelegate(mXIAPDelegate);
-                XIAPHelper.getInstance().mShowAlert = true;
+//                XIAPHelper.getInstance().mShowAlert = true;
                 XIAPHelper.getInstance().init(this, Arrays.asList(productIdList));
             } catch (JSONException e) {
                 e.printStackTrace();
