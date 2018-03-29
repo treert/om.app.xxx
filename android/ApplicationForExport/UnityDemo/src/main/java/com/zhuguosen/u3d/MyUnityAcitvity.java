@@ -154,6 +154,7 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
                 obj.put("token", purchase.getOriginalJson());
                 obj.put("payload", purchase.getDeveloperPayload());
                 obj.put("googleSign", purchase.getSignature());
+                obj.put("productId", purchase.getSku());
                 NativeInterface.SendMsgToUnity("xiap.buy.success" ,obj);
 
             } catch (JSONException e) {
