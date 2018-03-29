@@ -35,7 +35,11 @@ import com.zhuguosen.android.iap.util.IabHelper.IabAsyncInProgressException;
  *
  */
 public class XIAPHelper {
-	
+
+    static int ERR_HAS_OWNED_NEED_CONSUME = 1001;
+    static int ERR_BILL_SERVICE_DISCONNECTED = 4001;
+
+
 	static XIAPHelper _singleton = null;
 	public static XIAPHelper getInstance(){
 		if(_singleton == null)
@@ -109,6 +113,10 @@ public class XIAPHelper {
         	logDebug("handled by IABUtil onActivityResult(" + requestCode + "," + resultCode + "," + data);
         }
     }
+
+    private void _init(){
+        this.init(mActivity, mProductIdList);
+    }
     
     public void init(Activity activity, final List<String> productIdList){
     	mActivity = activity;
@@ -141,7 +149,7 @@ public class XIAPHelper {
                 // Have we been disposed of in the meantime? If so, quit.
                 if (mHelper == null) return;
 
-                // unfortunelu, this may happend
+                // unfortunely, this may happend
                 if(mHelper.IsDisposed()) return;
 
                 logDebug("Setup finished. ");
@@ -184,6 +192,14 @@ public class XIAPHelper {
     		mDelegate.onXIAPBuyError(-1, "buy product error: has not init success");
     		return;
     	}
+
+    	if(mHelper.IsServiceConnected() == false){
+            logError("buy product error: bill service disconnected");
+            mDelegate.onXIAPBuyError(ERR_BILL_SERVICE_DISCONNECTED, "buy product error: bill service disconnected");
+            // reinit
+            _init();
+    	    return;
+        }
     	
     	if(mInventory.hasDetails(productId) == false)
     	{
@@ -208,6 +224,9 @@ public class XIAPHelper {
     public void consume(String productId){
         // 这个接口，不需要返回，服务
         if(mInventory == null || mHelper == null || mHelper.IsDisposed()) return;
+        if(mHelper.IsServiceConnected() == false){
+            return;
+        }
         Purchase purchase = mInventory.getPurchase(productId);
         if(purchase != null){
             try {
@@ -284,7 +303,7 @@ public class XIAPHelper {
                     } catch (IabAsyncInProgressException e) {
                         logError("Error querying inventory. Another async operation in progress.");
                     }
-                    mDelegate.onXIAPBuyError(7, "Error purchasing: " + result);
+                    mDelegate.onXIAPBuyError(ERR_HAS_OWNED_NEED_CONSUME, "Error purchasing: " + result);
                 }
                 else{
                     mDelegate.onXIAPBuyError(-1, "Error purchasing: " + result);

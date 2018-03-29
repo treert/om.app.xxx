@@ -89,6 +89,10 @@ public class IabHelper {
         return mDisposed || mDisposeAfterAsync;
     }
 
+    public boolean IsServiceConnected(){
+        return mService != null;
+    }
+
     // Are subscriptions supported?
     boolean mSubscriptionsSupported = false;
 
