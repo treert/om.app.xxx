@@ -161,6 +161,12 @@ public class XIAPHelper {
                     return;
                 }
 
+                if(mHelper.IsServiceConnected() == false){
+                    logError("startSetup error: bill service disconnected");
+                    mDelegate.onXIAPIinitError(ERR_BILL_SERVICE_DISCONNECTED, "startSetup error: bill service disconnected");
+                    return;
+                }
+
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
                 // because we always call getPurchases() at startup, so therefore we can ignore
