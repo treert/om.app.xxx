@@ -89,7 +89,7 @@ static XIAPHelper * _singleton;
          }
          else
          {
-             [self.mDelegate onXIAPBuyError:-1 msg:@""];
+             [self.mDelegate onXIAPInitError:-1 msg:@""];
          }
          
          [self showDebugView:@"init finish" msg:
@@ -332,7 +332,7 @@ static XIAPHelper * _singleton;
     
     // [__object performSelector:__selector withObject:nil withObject:nil];
     
-    [self.mDelegate onXIAPBuyError:-1 msg:@"pay failed"];
+    [self.mDelegate onXIAPInitError:-1 msg:@"pay failed"];
 }
 
 -(void) requestDidFinish:(SKRequest *)request

@@ -13,11 +13,13 @@ using System.IO;
 
 public class XCodeProjectMod : MonoBehaviour
 {
+    private static bool _enable = false;
 #if UNITY_STANDALONE_OSX
     private const string SETTING_DATA_PATH = "Assets/Editor/XCodeAPI/Setting/XcodeProjectSetting.asset";
     [PostProcessBuild]
     private static void OnPostprocessBuild(BuildTarget buildTarget, string buildPath)
     {
+        if(_enable == false) return;
         if (buildTarget != BuildTarget.iOS)
             return;
         PBXProject pbxProject = null;
