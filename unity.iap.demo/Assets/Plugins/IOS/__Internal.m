@@ -1,4 +1,4 @@
-﻿/*header
+/*header
     > File Name: __Internal.cpp
     > Create Time: 2017-12-29 星期五 11时28分28秒
     > Athor: treertzhu
@@ -6,8 +6,9 @@
 #import <Foundation/Foundation.h>
 #import "__Internal.h"
 #import "XIAPHelper.h"
+#import "XUtil.h"
 
-extern "C" void UnitySendMessage(const char * notfiyObjName, const char *method, const char *msg);
+void UnitySendMessage(const char * notfiyObjName, const char *method, const char *msg);
 
 
 @interface TestIAP:NSObject<XIAPDelegate>
@@ -27,7 +28,7 @@ extern "C" void UnitySendMessage(const char * notfiyObjName, const char *method,
         NSDictionary * contentDic = [XUtil dicWithJson:content];
         
         NSString * productId = [contentDic objectForKey:@"productId"];
-        NSString * payload = [contentDic objectForKey:@"extData"];
+        NSString * payload = [contentDic objectForKey:@"payload"];
         [[XIAPHelper getInstance] buy:productId payload:payload];
     }
 }
@@ -100,14 +101,14 @@ extern "C" void UnitySendMessage(const char * notfiyObjName, const char *method,
 }
 
 - (void)SendMsgToUnity:(NSString *)msg {
-    UnitySendMessage("GamePoint","RecvNativeMsg", [msg UTF8String])
+    UnitySendMessage("GamePoint","RecvNativeMsg", [msg UTF8String]);
 }
 
 @end
 
 static TestIAP* _test_iap_instance = nil;
 static TestIAP* GetTestIAPInstance() {
-    if(_test_iap_instance != nil) {
+    if(_test_iap_instance == nil) {
         _test_iap_instance = [TestIAP alloc];
     }
     return _test_iap_instance;
@@ -117,11 +118,11 @@ void U3D_RecvMsgFromUnity(const char * type , const char * content)
 {
     NSString * _type = [[NSString alloc] initWithUTF8String:type];
     NSString * _content = [[NSString alloc] initWithUTF8String:content];
-    TestIAP* GetTestIAPInstance();
-    [TestIAP RecvMsgFromUnity:_type content:_content];
+    TestIAP* test = GetTestIAPInstance();
+    [test RecvMsgFromUnity:_type content:_content];
 }
 
-const char * U3D_GetSDKConfig(const char * type, const char * content)
+const char * U3D_GetInfoForUnity(const char * type, const char * content)
 {
     return "";
 }

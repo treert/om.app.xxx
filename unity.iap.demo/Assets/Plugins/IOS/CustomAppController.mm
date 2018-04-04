@@ -4,7 +4,6 @@
     > Athor: treertzhu
 */
 #import "UnityAppController.h"
-#import "WXApi.h"
 
 @interface CustomAppController : UnityAppController
 @end
