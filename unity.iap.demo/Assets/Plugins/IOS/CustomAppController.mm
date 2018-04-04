@@ -17,7 +17,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
 
-    
+    NSLog(@"CustomAppController finish launch");
     return YES;
 }
 

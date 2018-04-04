@@ -6,7 +6,8 @@
 
 #ifndef XAppleIAP_h
 #define XAppleIAP_h
-#import "IAPShare.h"
+
+#import <StoreKit/StoreKit.h>
 
 @protocol XIAPDelegate
 - (void) onXIAPInitError:(int) code msg:(NSString*)msg;

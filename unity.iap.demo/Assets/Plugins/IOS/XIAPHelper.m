@@ -7,18 +7,17 @@
 #import <Foundation/Foundation.h>
 #import "XIAPHelper.h"
 
-/**
- * 简单包装下IAPHelper，方便使用。只支持消耗型内购
- * 1. initInfo
- * 2. buy
- */
+#if ! __has_feature(objc_arc)
+#error You need to either convert your project to ARC or add the -fobjc-arc compiler flag to IAPHelper.m.
+#endif
+
 @interface XIAPHelper()<SKPaymentTransactionObserver,SKProductsRequestDelegate>
 {
     NSString* _goodId;
     SKProduct* _productInfo;
     NSString* _payload;
 }
-@property BOOL mIsBuying;// 在请求商品信息
+@property BOOL mIsBuying;
 @property BOOL mShowAlert;
 @property id<XIAPDelegate> mDelegate;
 @property (nonatomic,strong) NSArray * products;// 商品列表
@@ -30,29 +29,29 @@
 
 static XIAPHelper * _singleton;
 
+// 会初始化，添加监听，在应用有能力处理支付逻辑时在调用
 + (XIAPHelper* ) getInstance {
     if (_singleton == nil) {
         _singleton = [[XIAPHelper alloc] init];
         _singleton.mIsBuying = NO;
         _singleton.mShowAlert = NO;
+        _singleton.products = [NSArray array];
     }
     return _singleton;
 }
 
--(id) init
-{
+-(id) init {
     if (self = [super init]) {
         [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     }
     return self;
 }
 
--(void) dealloc
-{
+-(void) dealloc {
     [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
 }
 
-- (void) setDelegate:(id<XIAPDelegate>)delegate{
+- (void) setDelegate:(id<XIAPDelegate>)delegate {
     self.mDelegate = delegate;
 }
 
@@ -60,7 +59,7 @@ static XIAPHelper * _singleton;
     [self requestProducts:productIdList];
 }
 
--(void)showDebugView:(NSString*)title msg:(NSString*)msg{
+-(void)showDebugView:(NSString*)title msg:(NSString*)msg {
     if(!self.mShowAlert) return;
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title
                                                         message:msg
@@ -69,45 +68,34 @@ static XIAPHelper * _singleton;
     [alertView show];
 }
 
-- (SKProduct*) getProductById:(NSString*) productId
-{
-    // get product info
-    SKProduct* product = nil;
-    NSArray *list = self.products;
-    for(SKProduct* item in list)
-    {
-        if([item.productIdentifier isEqualToString:productId])
-        {
-            product = item;
-            break;
+- (SKProduct*) getProductById:(NSString*) productId {
+    for(SKProduct* item in self.products) {
+        if([item.productIdentifier isEqualToString:productId]) {
+            return item;
         }
     }
-    return product;
+    return nil;
 }
 
 // 获取所有的商品
-- (void)requestProducts:(NSSet *)productIdentifiers
-{
+- (void)requestProducts:(NSSet *)productIdentifiers {
     SKProductsRequest *request = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
     request.delegate=self;
     [request start];// 这个的生命周期大概会自动管理，注意开启ARC
 }
 
 //<SKProductsRequestDelegate> 收到的产品信息
-- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
-{
+- (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response {
     NSLog(@"XIAP: get product info list finish");
     self.products = response.products;
     NSArray *list = self.products;
     NSLog(@"XIAP: product list:\n %lu %@",(unsigned long)[list count],[list description]);
     NSLog(@"XIAP: failed list: %@",[response.invalidProductIdentifiers description]);
 
-    if([list count] > 0)
-    {
+    if([list count] > 0) {
         [self.mDelegate onXIAPInitSuccess:list];
     }
-    else
-    {
+    else {
         [self.mDelegate onXIAPInitError:-1 msg:@""];
     }
 
@@ -118,16 +106,7 @@ static XIAPHelper * _singleton;
             ];
 }
 
-//<SKProductsRequestDelegate> 可选的，获取商品信息失败
-- (void)request:(SKRequest *)request didFailWithError:(NSError *)error{
-    NSLog(@"didFailWithError error: %@ %ld", error.localizedDescription,(long)error.code);
-    // [__object performSelector:__selector withObject:nil withObject:nil];
-    
-    [self.mDelegate onXIAPInitError:-1 msg:@"pay failed"];
-}
-
-- (void) buy:(NSString*)productId payload:(NSString*) payload
-{
+- (void) buy:(NSString*)productId payload:(NSString*) payload {
     NSLog(@" buy Good productId = %@",goodId);
     if (![SKPaymentQueue canMakePayments]) {
         NSLog(@"XIAP: can not buy, IAP can not work");
@@ -146,8 +125,7 @@ static XIAPHelper * _singleton;
     
     if(!product){
         NSLog(@"XIAP: error productId: %@ is not valid",productId);
-        [self.mDelegate onXIAPBuyError:4002 msg:
-        [NSString stringWithFormat:@"%@ is not valid", productId]];
+        [self.mDelegate onXIAPBuyError:4002 msg:[NSString stringWithFormat:@"%@ is not valid", productId]];
         return;
     }
 
@@ -162,27 +140,19 @@ static XIAPHelper * _singleton;
 }
 
 //<SKPaymentTransactionObserver> 支付过程回调
-- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions//交易结果
-{
-    NSLog(@"-----paymentQueue--------");
-    for (SKPaymentTransaction *transaction in transactions)
-    {
-        if(trans.error)
-        {
-            self.mIsBuying = NO;
-            NSLog(@"XIAP: buy %@ fail %@",_productId,[trans.error localizedDescription]);
-            [self.mDelegate onXIAPBuyError:-1 
-                msg: [NSString stringWithFormat:@"buy %@ Fail %@", _productId, [trans.error localizedDescription]]];
-            return;
-        }
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions {
+    for (SKPaymentTransaction *transaction in transactions) {
         switch (transaction.transactionState) {
             case SKPaymentTransactionStatePurchased:
+                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
                 [self completeTransaction:transaction];
                 break;
             case SKPaymentTransactionStateFailed:
+                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
                 [self failedTransaction:transaction];
                 break;
             case SKPaymentTransactionStateRestored:
+                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
                 [self restoreTransaction:transaction];
                 break;
             default:
@@ -191,7 +161,7 @@ static XIAPHelper * _singleton;
     }
 }
 
--(void) completeTransaction:(SKPaymentTransaction *)transaction{
+-(void) completeTransaction:(SKPaymentTransaction *)transaction {
     NSLog(@"buy success product: %@ payload: %@ ",_productId,_payload);
     self.mIsBuying = NO;
     // !!!用户已经付钱了，这之后要是请求服务器发货失败就掉单了
@@ -202,25 +172,23 @@ static XIAPHelper * _singleton;
     
     [self showDebugView:@"info" msg:trans.description];
     [self.mDelegate onXIAPBuySuccess:base64Receipt payload:_payload product:_productInfo];
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 }
 
 
 -(void) failedTransaction:(SKPaymentTransaction *)transaction{
     self.mIsBuying = NO;
-    NSLog(@"XIAP: buy %@ fail",_productId);
-    if (transaction.error.code != SKErrorPaymentCancelled) {
-        NSLog(@"!Cancelled");
+    if (transaction.error.code != SKErrorPaymentCancelled)
+    {
+        NSLog(@"Transaction error: %ld %@", transaction.error.localizedDescription,(long)transaction.error.code);
     }
 
     [self.mDelegate onXIAPBuyError:-1 msg:@"buy failed"];
-    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 }
 
 
 -(void) restoreTransaction:(SKPaymentTransaction *)transaction{
     NSLog(@"XIAP: Restore transaction : %@",transaction.transactionIdentifier);
-    [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+    // 当前不支持非消耗物品
 }
 
 @end
