@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System.IO;
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,5 +62,18 @@ public class MainScene : MonoBehaviour {
 
         var str = Json.Serialize(jsonData);
         XPlatform.singleton.SendMsgToNative("xiap.consume", str);
+    }
+
+    public void OnClickTestOBB()
+    {
+        XPlatform.singleton.SetStatusMsg("click test obb");
+
+        string main_obb_file = XPlatform.singleton.GetInfoFromNative("obb.get.main.filepath");
+        XPlatform.singleton.SetStatusMsg("obb file: " + main_obb_file);
+        if (string.IsNullOrEmpty(main_obb_file) == false)
+        {
+            FileInfo file_info = new FileInfo(main_obb_file);
+            XPlatform.singleton.SetStatusMsg("file info: " + file_info.Exists + (file_info.Exists ? file_info.Length: 0));
+        }
     }
 }

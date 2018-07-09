@@ -10,14 +10,21 @@ class XPlatform : MonoBehaviour
 {
     [SerializeField]
     UnityEngine.UI.Text _textStatus = null;
+
+    LinkedList<string> _texts = new LinkedList<string>();
     public void SetStatusMsg(string msg)
     {
-        _textStatus.text = msg;
+        _texts.AddFirst("<color=red>#</color> " + msg);
+        if(_texts.Count > 10)
+        {
+            _texts.RemoveLast();
+        }
+        _textStatus.text = string.Join("\n",_texts.ToArray());
     }
 
     public void SendMsgToNative(string type, string json = "")
     {
-        SetStatusMsg(type + '\n' + json); 
+        SetStatusMsg(type + " : " + json); 
         XNativeInterface.SendMsg(type, json);
     }
 

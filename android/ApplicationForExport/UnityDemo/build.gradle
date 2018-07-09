@@ -22,20 +22,24 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':unity-classes')
-    compile project(path: ':XIAPHelper')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':unity-classes')
+    api project(path: ':XIAPHelper')
 }
 
-task makeJar(type: Copy) {
-    def dst_dir = '../../../unity.iap.demo/Assets/Plugins/Android'
-    def dst_file = 'my.unity.activity.jar'
-    def dst_path = dst_dir + '/' + dst_file
-
-    //delete dst_path
-    from('build/intermediates/bundles/debug/')
-    into(dst_dir)
-    include('classes.jar')
-    rename ('classes.jar', dst_file)
+// https://www.cnblogs.com/SusieBlog/p/5405265.html
+task buildMyJar(type: Jar, dependsOn: ['build']) {
+    //导出的jar文件名称
+    archiveName = 'my.unity.activity.jar'
+    //从哪个目录打包jar
+    from('build/intermediates/classes/debug')
+    //导出的jar文件的存放目录（未指定则默认存放在build/libs下）
+    destinationDir = file('../../../unity.iap.demo/Assets/Plugins/Android')
+    //需要打包的类
+    include('**/*.class')
+    //去掉不要的类
+    exclude('**/BuildConfig.class')
+    exclude('**/BuildConfig\$*.class')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
 }
-makeJar.dependsOn(build)

@@ -1,6 +1,9 @@
 package com.zhuguosen.u3d;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -166,6 +170,18 @@ public class MyUnityAcitvity extends UnityPlayerNativeActivity implements Native
 
     @Override
     public String GetInfoForUnity(String type, String json) {
+        if (type.equals("obb.get.main.filepath")) {
+            try {
+                Context context = this;
+                File obb_dir = context.getObbDir();
+                PackageManager manager = context.getPackageManager();
+                PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+                return String.format("%s/main.%d.%s.obb",obb_dir.getPath(), info.versionCode, info.packageName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "";
+            }
+        }
         return type;
     }
 }
