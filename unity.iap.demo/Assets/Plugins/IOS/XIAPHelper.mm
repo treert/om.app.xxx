@@ -135,6 +135,7 @@ static XIAPHelper * _singleton;
     _productInfo = product;
 
     // SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
+	// payment.applicationUsername = payload;
     SKPayment *payment = [SKPayment paymentWithProduct:product];
     [[SKPaymentQueue defaultQueue] addPayment:payment];
 }
