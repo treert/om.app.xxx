@@ -1,4 +1,6 @@
-﻿using UnityEditor.iOS.Xcode;
+﻿#if UNITY_STANDALONE_OSX
+
+using UnityEditor.iOS.Xcode;
 using System.IO;
 
 
@@ -100,3 +102,5 @@ public static class DirectoryProcessor
         Directory.Delete(targetDirectoryPath, false);
     }
 }
+
+#endif
