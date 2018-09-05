@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_STANDALONE_OSX
+
+using System.Collections.Generic;
 using UnityEditor.iOS.Xcode;
 using System.IO;
 
@@ -102,3 +104,5 @@ public static class InfoPlistProcessor
   
 
 }
+
+#endif
