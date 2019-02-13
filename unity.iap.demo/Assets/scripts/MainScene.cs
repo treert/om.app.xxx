@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using MiniJSON;
+using System;
+using System.Text;
 
 public class MainScene : MonoBehaviour {
 
@@ -32,8 +34,42 @@ public class MainScene : MonoBehaviour {
 
     public void OnClickTest()
     {
-        XPlatform.singleton.SetStatusMsg("click test");
-        XPlatform.singleton.SendMsgToNative("test","");
+        string[] infos = new string[] {
+            "dataPath: " + Application.dataPath,
+            "streamingAssetsPath: " + Application.streamingAssetsPath,
+            "persistentDataPath: " + Application.persistentDataPath,
+        };
+
+        string str = string.Join("\n",infos);
+        AssetBundle ab = null;
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine(str);
+
+        if(Application.platform == RuntimePlatform.Android)
+        {
+            sb.AppendLine();
+            str = Application.dataPath + "!assets/xx.txt.ab";// 这儿的assets之前没有/，和streamingAssetsPath不一样的。
+            sb.AppendLine(str);
+            sb.AppendLine(File.Exists(str).ToString());
+            ab = AssetBundle.LoadFromFile(str);
+            sb.AppendLine(ab == null ? "null" : "exsit");
+            if (ab != null) ab.Unload(true);
+        }
+
+        sb.AppendLine();
+        str = Application.streamingAssetsPath + "/xx.txt.ab";
+        sb.AppendLine(str);
+        sb.AppendLine(File.Exists(str).ToString());
+        ab = AssetBundle.LoadFromFile(str);
+        sb.AppendLine(ab == null ? "null" : "exsit");
+        if (ab != null) ab.Unload(true);
+
+        // File.Exsits 在Android里不能用于StreamingAssets，里面的资源实际在压缩包里
+        // 有种方法可以模拟，需要读取压缩包索引，非常骚操作
+        // https://github.com/gwiazdorrr/BetterStreamingAssets
+
+        XPlatform.singleton.SetStatusMsg(sb.ToString());
+        //XPlatform.singleton.SendMsgToNative("test","");
     }
 
     public void OnClickXIAPInit()

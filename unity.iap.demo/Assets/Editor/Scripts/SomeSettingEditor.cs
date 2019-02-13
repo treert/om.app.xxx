@@ -15,6 +15,33 @@ public class SomeSettingEditor : EditorWindow {
         AssetDatabase.SaveAssets();
     }
 
+    [MenuItem("Assets/BuildAB",priority = 900)]
+    static void BuildAB()
+    {
+        UnityEngine.Object[] objs = Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets);
+        if(objs.Length > 0)
+        {
+            var obj = objs[0];
+            var path = AssetDatabase.GetAssetPath(obj);
+            var dir = Path.GetDirectoryName(path);
+
+            dir = "Assets/StreamingAssets/";
+            Directory.CreateDirectory(dir);
+
+            var name = Path.GetFileName(path);
+            AssetBundleBuild build = new AssetBundleBuild();
+            build.assetBundleName = name + ".ab";
+            build.assetNames = new string[] { path };
+
+            Debug.Log(build.assetBundleName);
+            BuildPipeline.BuildAssetBundles(dir,
+                new AssetBundleBuild[] { build },
+                BuildAssetBundleOptions.ChunkBasedCompression, 
+                EditorUserBuildSettings.activeBuildTarget);
+            AssetDatabase.ImportAsset(dir + build.assetBundleName);
+        }
+    }
+
     public static string GetSelectedDir()
     {
         string dir = "Assets";
