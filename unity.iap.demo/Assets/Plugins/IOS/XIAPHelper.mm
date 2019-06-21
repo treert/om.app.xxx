@@ -4,6 +4,11 @@
     > Athor: treertzhu
 */
 
+// 掉单处理的不好，这次优化一点点，有机会再优化完整吧。有两个参考文章
+// > 有代码 https://www.jianshu.com/p/573876b34c15
+// > 分析过程多一点 https://www.jianshu.com/p/d8bf952a023a
+
+
 #import <Foundation/Foundation.h>
 #import "XIAPHelper.h"
 
@@ -35,6 +40,8 @@ static XIAPHelper * _singleton;
         _singleton = [[XIAPHelper alloc] init];
         _singleton.mIsBuying = NO;
         _singleton.mShowAlert = NO;
+		_singleton.goodId = @"";
+		_singleton.
         _singleton.products = [NSArray array];
     }
     return _singleton;
@@ -134,9 +141,9 @@ static XIAPHelper * _singleton;
     _payload = payload;
     _productInfo = product;
 
-    // SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
-	// payment.applicationUsername = payload;
-    SKPayment *payment = [SKPayment paymentWithProduct:product];
+    SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];
+	payment.applicationUsername = payload; // 这个可能回调时为空，有坑。
+    // SKPayment *payment = [SKPayment paymentWithProduct:product];
     [[SKPaymentQueue defaultQueue] addPayment:payment];
 }
 
@@ -145,51 +152,54 @@ static XIAPHelper * _singleton;
     for (SKPaymentTransaction *transaction in transactions) {
         switch (transaction.transactionState) {
             case SKPaymentTransactionStatePurchased:
-                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
                 [self completeTransaction:transaction];
                 break;
             case SKPaymentTransactionStateFailed:
-                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
                 [self failedTransaction:transaction];
                 break;
             case SKPaymentTransactionStateRestored:
-                [[SKPaymentQueue defaultQueue] finishTransaction: transaction];
-                [self restoreTransaction:transaction];
+                [self completeTransaction:transaction];
                 break;
+			case SKPaymentTransactionStatePurchasing:
+				// NSLog(@"商品添加进列表");
+				break;
             default:
+				// NSLog(@"支付失败");// ??
                 break;
         }
     }
 }
 
 -(void) completeTransaction:(SKPaymentTransaction *)transaction {
-    NSLog(@"XIAP: buy success product: %@ payload: %@ ",_goodId,_payload);
-    self.mIsBuying = NO;
-    // !!!用户已经付钱了，这之后要是请求服务器发货失败就掉单了
+	NSLog(@"XIAP: buy success product: %@ payload: %@ ",_goodId,_payload);
+	self.mIsBuying = NO;
+	// !!!用户已经付钱了，这之后要是请求服务器发货失败就掉单了
     // 把票据发服务器，这儿不做票据保存，做也是在游戏逻辑里做
-    NSURL *receiptUrl = [[NSBundle mainBundle]appStoreReceiptURL];
-    NSData *receipt = [NSData dataWithContentsOfURL:receiptUrl];
-    NSString *base64Receipt = [receipt base64EncodedStringWithOptions:0];
-    
-    [self showDebugView:@"info" msg:transaction.description];
-    [self.mDelegate onXIAPBuySuccess:base64Receipt payload:_payload product:_productInfo];
+	NSData *receipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+	if(receipt){
+		NSString *orderId = transaction.payment.applicationUsername ?: self.payload;// applicationUsername 就算设置了也可能为空
+		// NSString *key = transaction.transactionIdentifier;// should use, but has not use
+		NSString *base64Receipt = [receipt base64EncodedStringWithOptions:0];
+		
+		[self showDebugView:@"info" msg:transaction.description];
+		[self.mDelegate onXIAPBuySuccess:base64Receipt payload:orderId product:_productInfo];
+	}
+	
+	// 应该等服务器回调后再调用这个
+	[[SKPaymentQueue defaultQueue] finishTransaction: transaction];
 }
 
 
 -(void) failedTransaction:(SKPaymentTransaction *)transaction{
     self.mIsBuying = NO;
+	[[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+	
     if (transaction.error.code != SKErrorPaymentCancelled)
     {
         NSLog(@"XIAP: Transaction error: %@ %ld ", transaction.error.localizedDescription,(long)transaction.error.code);
     }
 
     [self.mDelegate onXIAPBuyError:-1 msg:@"buy failed"];
-}
-
-
--(void) restoreTransaction:(SKPaymentTransaction *)transaction{
-    NSLog(@"XIAP: Restore transaction : %@",transaction.transactionIdentifier);
-    // 当前不支持非消耗物品
 }
 
 @end
