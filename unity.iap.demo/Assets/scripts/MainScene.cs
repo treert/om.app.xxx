@@ -64,6 +64,11 @@ public class MainScene : MonoBehaviour {
         sb.AppendLine(ab == null ? "null" : "exsit");
         if (ab != null) ab.Unload(true);
 
+        // 报错。
+        //sb.AppendLine("Test File.Read");
+        //var bytes = File.ReadAllBytes(str);
+        //sb.AppendLine((bytes == null ? -1 : bytes.Length).ToString());
+
         // File.Exsits 在Android里不能用于StreamingAssets，里面的资源实际在压缩包里
         // 有种方法可以模拟，需要读取压缩包索引，非常骚操作
         // https://github.com/gwiazdorrr/BetterStreamingAssets
